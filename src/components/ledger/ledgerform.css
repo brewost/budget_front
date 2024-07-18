@@ -1,0 +1,102 @@
+.ledger-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--color-light-pink);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 100px;
+}
+
+.ledger-form h3 {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--color-dark-gray);
+}
+
+.ledger-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ledger-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 18px;
+  color: var(--color-dark-gray);
+}
+
+.ledger-form input[type="text"],
+.ledger-form input[type="number"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--color-dark-gray);
+  border-radius: 4px;
+  appearance: none; /* Define appearance property */
+}
+
+.ledger-form input[type="number"]::-webkit-outer-spin-button,
+.ledger-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ledger-form input[type="number"]::-webkit-outer-spin-button,
+.ledger-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Remove arrows for WebKit browsers */
+  margin: 0;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-button {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--color-dark-gray);
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--color-light-blue);
+}
+
+.toggle-button.active {
+  background-color: var(--color-blue);
+  color: var(--color-white);
+}
+
+.ledger-form select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--color-dark-gray);
+  border-radius: 4px;
+}
+
+.ledger-form .custom-category {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--color-dark-gray);
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.ledger-form button[type="submit"] {
+  padding: 12px;
+  font-size: 18px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--color-blue);
+  color: var(--color-white);
+  align-self: center;
+  transition: transform 0.3s;
+}
+
+.ledger-form button[type="submit"]:hover {
+  transform: scale(1.05);
+}

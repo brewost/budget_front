@@ -1,0 +1,30 @@
+
+:root {
+  --color-cream: #f5f3e7;
+  --color-light-pink: #fdd6ff;
+  --color-light-blue: #9fd5e5;
+  --color-light-green: #80e5c4;
+  --color-teal: #49cad4;
+  --color-blue: #6e9cd0;
+  --color-white: #ffffff; 
+  --color-dark-gray: #333333; 
+ 
+}
+body {
+  font-family: "Happy Monkey", Arial, sans-serif;
+  background-color: var(--color-cream);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  
+  color: var(--color-blue);
+}
+
