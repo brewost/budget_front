@@ -24,7 +24,7 @@ const Jar = () => {
         throw new Error('Failed to fetch transactions');
       }
       const data = await response.json();
-      setTransactions(data); // Assuming the API response is an array of transactions
+      setTransactions(data); 
     } catch (error) {
       console.error('Error fetching transactions:', error);
     }
@@ -64,11 +64,33 @@ const Jar = () => {
     // Step 4: Update progress state
     setProgress(percentage);
   };
+  
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Set image URL to display dropped image
+        document.getElementById('jar-image').src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+
 
   return (
     <div className="jar-container">
       <h2>Jar</h2>
-    
+     <div className="jar-dropzone" onDrop={handleDrop} onDragOver={handleDragOver}>
+        <img id="jar-image" src="#" alt="Drop an image here" />
+       
+      </div>
       <div className="progress-bar">
         <progress value={progress} max="100"></progress>
         <p>Total: £{totalSum.toFixed(2)}</p>

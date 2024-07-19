@@ -15,7 +15,26 @@
   margin-bottom: 20px;
   color: var(--color-dark-gray);
 }
+.jar-dropzone {
+  border: 2px dashed var(--color-light-blue);
+  background-color: var(--color-white);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
 
+.jar-dropzone p {
+  color: var(--color-dark-gray);
+}
+
+.jar-dropzone img {
+  max-width: 100%;
+  max-height: 200px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 8px;
+}
 .progress-bar {
   margin-bottom: 20px;
 }

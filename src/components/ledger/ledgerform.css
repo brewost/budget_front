@@ -35,39 +35,37 @@
   font-size: 16px;
   border: 1px solid var(--color-dark-gray);
   border-radius: 4px;
-  appearance: none; /* Define appearance property */
+  appearance: none; /* Hide default spinner */
+  -webkit-appearance: none; /* Hide default spinner in WebKit browsers */
+  -moz-appearance: none; /* Hide default spinner in Firefox */
 }
 
-.ledger-form input[type="number"]::-webkit-outer-spin-button,
-.ledger-form input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.ledger-form input[type="number"]::-webkit-outer-spin-button,
-.ledger-form input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none; /* Remove arrows for WebKit browsers */
-  margin: 0;
+.ledger-form input[type="number"] {
+  appearance: textfield; /* Remove spin buttons */
+  -webkit-appearance: none; /* Hide spin buttons in WebKit-based browsers */
+  -moz-appearance: textfield; /* Hide spin buttons in Firefox */
 }
 
 .toggle-buttons {
   display: flex;
-  gap: 10px;
+  justify-content: space-evenly;
 }
 
 .toggle-button {
-  flex: 1;
-  padding: 10px;
+  padding: 10px 20px;
   font-size: 16px;
   border: 1px solid var(--color-dark-gray);
   border-radius: 4px;
-  cursor: pointer;
-  background-color: var(--color-light-blue);
-}
-
-.toggle-button.active {
   background-color: var(--color-blue);
   color: var(--color-white);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin: 0 10px;
+}
+
+.toggle-button:hover {
+  background-color: var(--color-light-blue);
+  transform: scale(1.05);
 }
 
 .ledger-form select {
@@ -75,14 +73,48 @@
   font-size: 16px;
   border: 1px solid var(--color-dark-gray);
   border-radius: 4px;
+  appearance: none; /* Remove default styling */
+  -webkit-appearance: none; /* Remove default styling in WebKit browsers */
 }
 
-.ledger-form .custom-category {
+.category-select-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 1px solid var(--color-dark-gray);
+  border-radius: 4px;
+  padding: 10px;
+  background-color: var(--color-white);
+}
+
+.category-select-container label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 calc(33.333% - 20px); /* 3 columns with gaps */
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--color-dark-gray);
+}
+
+.category-select-container label:nth-child(3n) {
+  border-right: 1px solid var(--color-dark-gray);
+}
+
+.category-select-container label:last-child {
+  border-right: none;
+}
+
+.custom-category {
   padding: 10px;
   font-size: 16px;
   border: 1px solid var(--color-dark-gray);
   border-radius: 4px;
-  margin-top: 10px;
+}
+
+.category-select-container input[type="checkbox"] {
+  appearance: checkbox; /* Standard checkbox appearance */
+  -webkit-appearance: checkbox; /* Ensure proper appearance in WebKit-based browsers */
+  accent-color: var(--color-blue); /* Change checkbox color in modern browsers */
 }
 
 .ledger-form button[type="submit"] {
@@ -100,3 +132,4 @@
 .ledger-form button[type="submit"]:hover {
   transform: scale(1.05);
 }
+

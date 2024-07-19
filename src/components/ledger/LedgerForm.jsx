@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../App.css';
 import './ledgerform.css';
@@ -13,95 +13,85 @@ const LedgerForm = () => {
   const [money, setMoney] = useState('');
   const [debit, setDebit] = useState(true); // Default to true for debit
   const [categories, setCategories] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
   const [newCategory, setNewCategory] = useState('');
-  const [customCategory, setCustomCategory] = useState(false); // State to toggle custom category input
+  const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
 
   useEffect(() => {
     fetchCategories();
     if (transactionId) {
       fetchTransactionDetails();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionId]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/category`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
+      if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
+      console.log('Fetched categories:', data); // Log fetched categories
       setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, []);
 
-  const fetchTransactionDetails = async () => {
+  const fetchTransactionDetails = useCallback(async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/ledger/${transactionId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch transaction details');
-      }
+      if (!response.ok) throw new Error('Failed to fetch transaction details');
       const data = await response.json();
+      console.log('Fetched transaction details:', data); // Log transaction details
       setName(data.name);
       setMoney(data.money.toString());
       setDebit(data.debit);
-      setSelectedCategoryId(data.category_id.toString());
+      setSelectedCategoryIds(data.categories.map(category => category.id)); // Set selected categories
     } catch (error) {
       console.error('Error fetching transaction details:', error);
     }
-  };
+  }, [transactionId]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+
     try {
-      let categoryId;
-      if (customCategory) {
+      let categoryIds = selectedCategoryIds;
+
+      if (showCustomCategoryInput && newCategory.trim()) {
         const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/category`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ title: newCategory }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: newCategory.trim() }),
         });
-        if (!response.ok) {
-          throw new Error('Failed to add new category');
-        }
+
+        if (!response.ok) throw new Error('Failed to add new category');
+
         const data = await response.json();
-        categoryId = data.id; // Assuming the response from backend includes the new category ID
-        fetchCategories(); // Refresh categories after adding a new one
-      } else {
-        categoryId = selectedCategoryId;
+        console.log('New category added:', data); // Log new category data
+        categoryIds = [...categoryIds, data.id]; // Add the new category ID
+        fetchCategories(); // Refresh categories list
       }
 
       const transaction = {
         name,
         money: parseFloat(money),
         debit,
-        category_id: categoryId,
+        category_ids: categoryIds, // Send multiple category IDs
       };
 
-      let endpoint = `${import.meta.env.VITE_APP_BACKEND_URL}/ledger`;
-      let method = 'POST';
-
-      if (transactionId) {
-        endpoint += `/${transactionId}`;
-        method = 'PUT';
-      }
+      const endpoint = transactionId
+        ? `${import.meta.env.VITE_APP_BACKEND_URL}/ledger/${transactionId}`
+        : `${import.meta.env.VITE_APP_BACKEND_URL}/ledger`;
+      const method = transactionId ? 'PUT' : 'POST';
 
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(transaction),
       });
 
-      if (!response.ok) {
-        throw new Error(transactionId ? 'Failed to update transaction' : 'Failed to add transaction');
-      }
+      if (!response.ok) throw new Error(transactionId ? 'Failed to update transaction' : 'Failed to add transaction');
 
       navigate('/');
     } catch (error) {
@@ -110,16 +100,24 @@ const LedgerForm = () => {
   };
 
   const handleCategoryChange = (e) => {
-    const value = e.target.value;
-    if (value === '') {
-      setCustomCategory(false);
-    } else if (value === '__custom__') {
-      setCustomCategory(true);
+    const { value, checked } = e.target;
+    const categoryId = parseInt(value, 10); // Convert value to integer
+
+    if (categoryId === -1) { // Custom category checkbox value
+      setShowCustomCategoryInput(checked);
+      if (!checked) setNewCategory(''); // Reset new category if unchecked
     } else {
-      setSelectedCategoryId(value);
-      setCustomCategory(false);
+      setSelectedCategoryIds(prevSelected =>
+        checked 
+          ? [...new Set([...prevSelected, categoryId])]  // Ensure unique values
+          : prevSelected.filter(id => id !== categoryId)
+      );
     }
   };
+
+  useEffect(() => {
+    console.log('Selected category IDs:', selectedCategoryIds); // Log selected category IDs after state update
+  }, [selectedCategoryIds]);
 
   return (
     <div className="ledger-form">
@@ -127,46 +125,86 @@ const LedgerForm = () => {
       <form onSubmit={handleFormSubmit}>
         <label>
           What?:
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
         </label>
         <label>
           How much?:
-          <input type="number" value={money} onChange={(e) => setMoney(e.target.value)} step="0.01" required />
+          <input
+            type="number"
+            value={money}
+            onChange={(e) => setMoney(e.target.value)}
+            step="0.01"
+            required
+          />
         </label>
-        <label>
-          In or out?:
-          <div className="toggle-buttons">
-            <button type="button" className={`toggle-button ${debit ? 'active' : ''}`} onClick={() => setDebit(true)}>Out</button>
-            <button type="button" className={`toggle-button ${!debit ? 'active' : ''}`} onClick={() => setDebit(false)}>In</button>
-          </div>
-        </label>
+       <label>
+  In or out?:
+  <div className="toggle-buttons">
+    <button
+      type="button"
+      className={`toggle-button ${debit ? 'active' : ''}`}
+      onClick={() => setDebit(true)}
+    >
+      Spent
+    </button>
+    <button
+      type="button"
+      className={`toggle-button ${!debit ? 'active' : ''}`}
+      onClick={() => setDebit(false)}
+    >
+      Saved
+    </button>
+  </div>
+</label>
         <label>
           Type?:
-          <select value={customCategory ? '__custom__' : selectedCategoryId} onChange={handleCategoryChange} required>
-            <option value="">Select or add new category...</option>
+          <div className="category-select-container">
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>{category.title}</option>
+              <label key={category.id}>
+                <input
+                  type="checkbox"
+                  name="category"
+                  value={category.id}
+                  checked={selectedCategoryIds.includes(category.id)}
+                  onChange={handleCategoryChange}
+                />
+                {category.title}
+              </label>
             ))}
-            <option value="__custom__">Add New Category</option>
-          </select>
-          {customCategory && (
-            <input
-              type="text"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              placeholder="Enter new category name"
-              className="custom-category"
-              required
-            />
-          )}
+            <label>
+              <input
+                type="checkbox"
+                name="category"
+                value="-1" // Value for the custom category checkbox
+                checked={showCustomCategoryInput}
+                onChange={handleCategoryChange}
+              />
+              Add New Category
+            </label>
+            {showCustomCategoryInput && (
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Enter new category name"
+                className="custom-category"
+                required
+              />
+            )}
+          </div>
         </label>
-        <button type="submit">{transactionId ? 'Update Transaction' : 'Add Transaction'}</button>
+        <button type="submit">
+          {transactionId ? 'Update Transaction' : 'Add Transaction'}
+        </button>
       </form>
     </div>
   );
 };
 
 export default LedgerForm;
-
-
 

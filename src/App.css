@@ -10,12 +10,13 @@
   --color-dark-gray: #333333; 
  
 }
-body {
+body, html {
   font-family: "Happy Monkey", Arial, sans-serif;
   background-color: var(--color-cream);
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 
 h1,
